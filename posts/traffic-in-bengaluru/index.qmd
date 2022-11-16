@@ -1,0 +1,574 @@
+---
+title: "Traffic in Bengaluru"
+description: "A broder view of existing Traffic situation in Bengaluru"
+author: "Ashok P"
+date: "2022-11-16"
+categories: [news, code, analysis]
+echo: FALSE
+toc: true
+toc-title: "Contents"
+smooth-scroll: true
+---
+
+## Introduction
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+#activating the required packages and reading the data
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(gt)
+library(sf)
+library(ggmap)
+library(ggtext)
+library(leaflet)
+```
+
+```{r echo=FALSE,warning=FALSE, message=FALSE}
+#reading ward boundaries shapefile
+wards <- read_sf("Shape_files/benguluru_ward_boundaries_reprojected.shp")
+
+wards <- st_transform(wards, 4326) %>% 
+  st_zm() %>% #to render on top of leaflet map z dimension should be removed
+  mutate(area = round(st_area(wards)/1000000,2)) %>% 
+  clean_names() %>% 
+  select(name, ward_name, division, area) %>% 
+  mutate(ward_num = str_match(name, pattern = "\\d.*"),
+         popup = paste0(
+           "<b>", "Ward Num: ", ward_num, "</b><br/>",
+           "<b>", "Ward Name: ", ward_name ,"</b><br/>",
+           "<b>", "Division: ", division, "</b><br/>",
+           "<b>", "Area(sqkm): ", area, "</b>"
+         ))
+
+cnt <- dim(wards)[[1]]
+
+total_area <- wards %>% 
+  pull(area) %>% 
+  sum()
+```
+Recent rains revealed that Bengaluru, known as IT Capital of India, is at the brink of a structural collapse due to unorganized infrastructure and inefficient drainage system. In the last decade, economic activity has skyrocketed in Bengaluru. This economic boom has attracted more and more people to move from different parts of India to this magnificent City and that means the no.of moving vehicles on its roads also has increased at an alarming rate. Studies by TomTom Index report that on average commuters in Bengaluru spend **[142hrs](https://www.tomtom.com/traffic-index/bengaluru-traffic)** extra time on roads because of traffic during rush hours. This post presents a few metrics which help you get a broader view of the existing Traffic situation in Bengaluru and the reasons to pay more attention to it.  
+
+Bengaluru city has `r cnt` wards covering an area of `r total_area`sqkm.  
+
+
+```{r  warning=FALSE, message=FALSE}
+#wards boundary plot with background map
+leaflet() %>% 
+  addProviderTiles(providers$OpenStreetMap) %>% 
+  addPolygons(data = wards, color = "black",
+              stroke = TRUE, fillOpacity = 0.3,
+              smoothFactor = 0.5, opacity = 1,
+              popup = ~popup)
+```
+<span style = 'font-size:12px'>
+*Source:* [Shapefile at Wards level](https://data.opencity.in/dataset/bbmp-ward-information)
+</span>  
+
+## Population
+
+```{r warning=FALSE, message=FALSE}
+#population stats
+
+df_pop <- read_excel("data.xlsx",
+                 sheet = "Population Data") %>% 
+  clean_names()
+
+start_year = min(df_pop$year)
+end_year = max(df_pop$year)
+
+avg_growthrate <- df_pop %>% 
+  mutate(
+    pct = ((population - lag(population))/lag(population))*100
+  ) %>% 
+  drop_na() %>% 
+  pull(pct) %>% 
+  mean()
+
+start_pop <- df_pop %>% 
+    filter(year == start_year) %>% 
+    pull(population)
+
+end_pop <- df_pop %>% 
+  filter(year == end_year) %>% 
+  pull(population)
+
+start_pop <- round(start_pop/1000000, 2)
+end_pop <- round(end_pop/1000000, 2)
+avg_growthrate <- round(avg_growthrate, 2)
+```
+
+
+Population of the City has been increasing at an average rate of `r avg_growthrate`% between `r start_year` and `r end_year`. From `r start_pop`MM in `r start_year`, the population of Bengaluru increased to `r end_pop`MM in `r end_year` making it the [fourth](https://statisticstimes.com/demographics/country/india-cities-population.php) most populated city in India.
+
+```{r warning=FALSE, message=FALSE}
+#population plot
+df_pop %>%
+  mutate(population = round(population/100000,1),
+         year = round(year)) %>% 
+  ggplot(aes(x = year, y = population))+
+  # geom_point(size = 1.3)+
+  # geom_line(size = 0.8)+
+  geom_col(fill = "#393E46", color = "black")+
+  geom_text(aes(label = population), nudge_y = 2.5)+
+  scale_x_continuous(breaks = min(df_pop$year):max(df_pop$year),
+                     expand = c(0,0))+
+  scale_y_continuous(expand = c(0,1.8))+
+  theme_minimal()+
+  labs(title = "Population(Lakhs) of Bengaluru",
+       x = NULL, y = NULL)+
+  theme(
+    panel.grid = element_blank(),
+    axis.text.y = element_blank(),
+    plot.title = element_text(face = "bold", size = 13)
+  )
+```
+
+
+## Economy
+```{r warning=FALSE, message=FALSE}
+#gdp plot
+df_gdp <- read_excel("data.xlsx",
+                 sheet = "GDP Data") %>% 
+  clean_names()
+
+colnames(df_gdp) <- c("financial_year", "gdp_trillion_rupees")
+
+end_year <- max(df_gdp$financial_year)
+gdp <- df_gdp %>% filter(financial_year == end_year) %>% pull(gdp_trillion_rupees)
+```
+
+As the economic activity is increasing at an alarming rate the GDP of this city has sky rocketed in the past decade. As the [fourth](https://en.wikipedia.org/wiki/Economy_of_Bangalore#:~:text=The%20estimated%20Metro%20GDP%20(PPP,productive%20metro%20area%20of%20India.)) most productive city in India, in `r end_year` Bengaluru's GDP reached to `r gdp` trillion rupees.
+
+```{r warning=FALSE, message=FALSE}
+#gdp plot
+df_gdp %>%
+  ggplot(aes(x = financial_year, y = gdp_trillion_rupees))+
+  geom_col(fill = "#749F82", color = "black")+
+  geom_text(aes(label = gdp_trillion_rupees), nudge_y = 0.35)+
+  scale_x_continuous(breaks = min(df_gdp$financial_year):max(df_gdp$financial_year),
+                     expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0.3))+
+  theme_minimal()+
+  labs(title = "GDP (Trillion Rupees) of Bengaluru",
+        x = NULL, y = NULL)+
+  theme(
+     panel.grid = element_blank(),
+     axis.text.y = element_blank(),
+     plot.title = element_text(face = "bold", size = 13)
+   )
+```
+
+
+
+
+## Vehicle Registration
+```{r warning=FALSE, message=FALSE}
+df_veh_total <- read_excel("data.xlsx",
+                 sheet = "Vehicle Registration Data",
+                 range = "C2:E14") %>% 
+  clean_names()
+
+start_year = min(df_veh_total$year)
+end_year = max(df_veh_total$year)
+
+start_total_veh <- df_veh_total %>%
+  filter(year == start_year) %>% 
+  pull(bangalore_city)
+
+end_total_veh <- df_veh_total %>%
+  filter(year == end_year) %>% 
+  pull(bangalore_city)
+
+avg_growthrate <- df_veh_total %>% 
+  mutate(
+    pct_change = ((bangalore_city-lag(bangalore_city))/bangalore_city)*100
+    ) %>% 
+  drop_na() %>% 
+  pull(pct_change) %>% 
+  mean()
+
+start_total_veh <- round(start_total_veh/1000000, 2)
+end_total_veh <- round(end_total_veh/1000000, 2)
+avg_growthrate <- round(avg_growthrate, 2)
+
+total_increase <- round(((end_total_veh-start_total_veh)/start_total_veh)*100,2)
+```
+
+As the the economic activity is increasing, Vehicle registrations also increased at an alarming annual rate of `r avg_growthrate`% in the last decade. In `r start_year`, a total of `r start_total_veh`MM Vehicles were registered in Bengaluru and that number increased to `r end_total_veh`MM in `r end_year`. In the last decade Vehicle registrations increased by  `r total_increase`%.
+
+```{r warning=FALSE, message=FALSE}
+#vehicle registrations plot
+df_veh_total %>%
+  mutate(bangalore_city = round(bangalore_city/100000,1)) %>% 
+  ggplot(aes(x = year, y = bangalore_city))+
+  geom_col(fill = "#EB6440", color = "black")+
+  geom_text(aes(label = bangalore_city), nudge_y = 2)+
+  scale_x_continuous(breaks = min(df_veh_total$year):max(df_veh_total$year),
+                     expand = c(0,0))+
+  scale_y_continuous(expand = c(0,1.3))+
+  theme_minimal()+
+  labs(title = "Total Vehicles Registered(Lakhs) in Bengaluru",
+       x = NULL, y = NULL)+
+  theme(
+    panel.grid = element_blank(),
+    axis.text.y = element_blank(),
+    plot.title = element_text(face = "bold", size = 13)
+  )
+```
+
+
+
+```{r warning=FALSE, message=FALSE}
+#total registered vehicles as on 31-03-22
+d <- "31-03-22"
+df_veh <- read_excel("data.xlsx",
+                 sheet = "Veh Registration as on 31.03.22") %>% 
+  slice(2:17) %>% 
+  select(1,7)
+
+colnames(df_veh) <- c("veh_cat", "total_veh")
+df_veh$total_veh <- as.numeric(df_veh$total_veh)
+
+total_registered <- df_veh %>%
+  pull(total_veh) %>% 
+  sum()
+
+two_wheelers <- df_veh %>% 
+  filter(veh_cat == "Two Wheelers") %>% 
+  pull(total_veh)
+
+cars <- df_veh %>% 
+  filter(veh_cat == "Cars") %>% 
+  pull(total_veh)
+
+buses <- df_veh %>% 
+  filter(veh_cat == "Buses") %>% 
+  pull(total_veh)
+
+two_wheelers <- round((two_wheelers/total_registered)*100, 2)
+cars <- round((cars/total_registered)*100, 2)
+buses <- round((buses/total_registered)*100, 2)
+
+total_registered <- round(total_registered/1000000,2)
+```
+
+As on `r d`, a total of `r total_registered` million vehicles are registered in Bengaluru. In this, **proportion of Two wheelers is `r two_wheelers`%, that of Cars is `r cars`% and Buses account for only `r buses`%.**
+
+```{r warning=FALSE, message=FALSE}
+df_veh %>% 
+  # filter(veh_cat != "Others") %>% 
+  mutate(pct = round(total_veh/sum(total_veh)*100, 2)) %>% 
+  arrange(desc(pct)) %>%
+  gt() %>% 
+  cols_label(
+    veh_cat = md("**Vehicle Category**"),
+    total_veh = md("**No. of Registered Vehicles (*1000s*)**"),
+    pct = md("**Percentage (%)**")
+  ) %>% 
+  tab_header(
+    title = md(paste("Total No.of Vehicles Registered in **Bengaluru City** as on", d))
+  ) %>% 
+  fmt_number(columns = total_veh, scale_by = 1/1000) %>% 
+  cols_align(columns = c("total_veh", "pct"), align = "center") %>% 
+  cols_width(veh_cat ~ px(200)) %>% 
+  data_color(columns = pct,
+             scales::col_numeric(palette = c("white", "red"), domain = c(100, 0)))
+```
+
+## Population vs Vehicles registered
+
+```{r warning=FALSE, message=FALSE}
+df_veh_total <- df_veh_total %>% 
+  left_join(df_pop, by = c("year" = "year")) %>% 
+  mutate(veh_to_pop = bangalore_city/population) %>% 
+  select(year, veh_to_pop) %>% 
+  drop_na()
+
+start_year <- min(df_veh_total$year)
+end_year <- max(df_veh_total$year)
+
+start_ratio <- df_veh_total %>% 
+  filter(year == start_year) %>% 
+  pull(veh_to_pop)
+
+
+end_ratio <- df_veh_total %>% 
+  filter(year == end_year) %>% 
+  pull(veh_to_pop)
+
+start_ratio <- round(start_ratio,2)
+end_ratio <- round(end_ratio,2)
+```  
+
+In `r start_year`, the **ratio of Total No.of Vehicles registered in Bengaluru to its Population is `r start_ratio`** and it increased to **`r end_ratio`** by `r end_year`. A recent report by India Today (24-10-22) indicated that this ratio has reached to **1**. That means **for every living person in Bengaluru there is a Vehicle.** I would encourage you to take a moment to let thought sink in.
+
+```{r warning=FALSE, message=FALSE}  
+df_veh_total %>%
+  ggplot(aes(x = year, y = veh_to_pop))+
+  geom_point(size = 1.3)+
+  geom_line(size = 0.8)+
+  scale_x_continuous(breaks = min(df_veh_total$year):max(df_veh_total$year))+
+  labs(title = "Ratio of total No.of Vehicles registered in Bengaluru and its Population",
+       x = NULL, y = "Total Registered Vehicles / Population")+
+  theme_minimal()+
+  theme(
+    panel.border = element_rect(fill = NA),
+    panel.grid.minor.x = element_blank(),
+    plot.title = element_text(face = "bold", size = 13)
+  )
+```
+
+
+
+## Public Transport
+
+```{r warning=FALSE, message=FALSE}
+df_metro <- read_excel("data.xlsx",
+                 sheet = "Metro Ridership") %>% 
+  clean_names()
+
+df_bus <- read_excel("data.xlsx",
+                 sheet = "Bus Ridership Data") %>% 
+  clean_names()
+
+
+df_mode_share <- df_metro %>%
+  left_join(df_bus, by = c("year" = "year")) %>% 
+  mutate(metro_ridership = (yearly_passengers/1000)/365,
+         bus_ridership = daily_bus_ridership_1000s) %>% 
+  mutate(total = metro_ridership + bus_ridership) %>% 
+  mutate(metro_ridership = round((metro_ridership/total)*100, 2),
+         bus_ridership = round((bus_ridership/total)*100, 2)) %>% 
+  select(year, metro_ridership, bus_ridership)
+
+end_year <- max(df_mode_share$year)
+
+metro <- df_mode_share %>% 
+  filter(year == end_year) %>% 
+  pull(metro_ridership)
+
+bus <- df_mode_share %>% 
+  filter(year == end_year) %>% 
+  pull(bus_ridership)
+
+```  
+
+
+Metro was proposed to take off the burden from Public road Transport systems but only a slight part of that goal has been achieved until now. In `r end_year`, on average Metro carried only `r metro`% and Buses carried about `r bus`% of total riders using Public Transport. Many of these trips might overlap because most people use either these two for First and Last mile journeys.
+
+```{r warning=FALSE, message=FALSE}
+#ridership comparison between metro and bus
+df_mode_share %>% 
+  pivot_longer(cols = c("metro_ridership", "bus_ridership"),
+               names_to = "mode", values_to = "pct") %>%
+  ggplot(aes(y = pct, x = year, fill = mode))+
+  geom_col(color = "black")+
+  geom_text(aes(label = paste0(round(pct,1), "%")),
+            position = position_stack(vjust = 0.5),
+            size = 4)+
+  scale_x_continuous(breaks = min(df_mode_share$year):max(df_mode_share$year), expand = c(0,0))+
+  scale_y_continuous(expand = c(0,3))+
+  scale_fill_manual(values = c("bus_ridership" = "#404258",
+                               "metro_ridership" = "#CC3636"))+
+  labs(
+    title = "<b>Ridership comparison between</b>
+    <b style = 'color:#404258; font-size:20px'>Bus</b> <b>and</b>
+    <b style = 'color:#CC3636; font-size:20px'>Metro</b> <b>in Bengaluru</b>"
+  )+
+  theme_minimal()+
+  theme(
+    plot.title = element_markdown(),
+    legend.position = "none",
+    panel.grid = element_blank(),
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_text(face = "bold")
+  )
+
+# df_mode_share %>%
+#   gt() %>% 
+#   cols_label(
+#     year = md("**Year**"),
+#     metro_ridership = md("**Metro**"),
+#     bus_ridership = md("**Bus**")
+#   ) %>% 
+#   tab_header(
+#     title = md("Ridership share between **Bus** and **Metro**")
+#   ) %>% 
+#   cols_align(columns = c("year", "metro_ridership", "bus_ridership"), align = "center") %>% 
+#   cols_width(bus_ridership ~ px(100)) %>%
+#   cols_width(metro_ridership ~ px(100)) %>%
+#   cols_width(year ~ px(100))
+#   
+
+#assumption about total ridership on a day in Bengaluru
+total_ridership <- 0.75
+```
+
+
+## Public vs Private Transport
+It is hard to get the data about Private vehicles from publicly available sources. To understand the mode share between Public and Private transit modes, an assumption was made that on average `r total_ridership*100`% of the total population move from one point to another either by private vehicle or by using public transport service on a given day. Based on this assumption following estimations can be made about the ridership share between Public and Private transport modes in Bengaluru.
+
+```{r warning=FALSE, message=FALSE}
+mode_share <- df_pop %>% 
+  left_join(df_bus, by = c("year" = "year")) %>% 
+  left_join(df_metro, by = c("year" = "year")) %>% 
+  mutate(population = round(population/1000), 
+         bus_ridership = daily_bus_ridership_1000s,
+         metro_ridership = round((yearly_passengers/365)/1000)) %>% 
+  select(year, population, bus_ridership, metro_ridership) %>% 
+  drop_na()
+
+
+mode_share %>% 
+  mutate(pct_bus = round((bus_ridership/(population*total_ridership))*100, 2),
+         pct_metro = round((metro_ridership/(population*total_ridership))*100, 2),
+         total_put_pct = pct_bus+pct_metro,
+         total_prt_pct = 100-total_put_pct) %>% 
+  select(year, total_put_pct, total_prt_pct) %>% 
+  pivot_longer(cols = c("total_put_pct", "total_prt_pct"),
+               values_to = "pct", names_to = "mode") %>%
+  ggplot(aes(y = pct, x = year, fill = mode))+
+  geom_bar(stat = "identity", color = "black")+
+  geom_text(aes(label = paste0(round(pct,1), "%")),
+            position = position_stack(vjust = 0.5),
+            size = 3.5)+
+  scale_x_continuous(breaks = min(mode_share$year):max(mode_share$year), expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_manual(values = c("total_prt_pct" = "#404258",
+                               "total_put_pct" = "#749F82"))+
+  labs(title = "<b>Average Daily Ridership share between</b>
+  <b style = 'color:#404258; font-size:20px'>Private</b> <b>and</b>
+       <b style = 'color:#749F82; font-size:20px'>Public</b>
+       <b>Transport<br>in Bengaluru</b>")+
+  theme_minimal()+
+  theme(
+    plot.title = element_markdown(),
+    panel.grid = element_blank(),
+    axis.title = element_blank(),
+    axis.text.y = element_blank(),
+    legend.position = "none"
+  )
+```
+
+## Existing Road Infrastructure
+A good way to understand the land-use characteristics of a city is to look at its road infrastructure.
+```{r warning=FALSE, message=FALSE}
+#extracting osm data
+
+# streets <- getbb("Bengaluru India")%>%
+#   opq()%>%
+#   add_osm_feature(key = "highway", 
+#                   value = c("motorway", "primary", "secondary", "tertiary",
+#                             "residential", "living_street", "service", "footway")) %>%
+#   osmdata_sf()
+# 
+# streets$osm_lines %>% 
+#   select(osm_id, name, highway) %>% 
+#   st_write("Shape_files/Bengaluru_roads_raw.shp")
+
+
+#road and intersection density plots
+grid <- read_sf("Shape_files/1x1km_grid.shp")
+roads <- read_sf("Shape_files/Benguluru_roads_cleaned.shp")
+
+ggplot()+
+  geom_sf(data = roads, color = "brown")+
+  theme_minimal()+
+  labs(title = "Road Network in Bengaluru")+
+  theme(
+    plot.title = element_text(face = "bold", size = 13)
+  )
+
+intersections <- grid %>% 
+  st_set_geometry(NULL) %>% 
+  count(NUMPOINTS)
+
+breaks <- seq(0, max(intersections$NUMPOINTS)+14,15)
+
+intersections <- intersections %>% 
+  mutate(interval = cut(NUMPOINTS,
+                        breaks,
+                        include.lowest = TRUE,
+                        right = FALSE)) %>% 
+  group_by(interval) %>% 
+  summarise(int_density = sum(n)) %>% 
+  ungroup() %>% 
+  mutate(label = str_replace(interval, pattern = "\\)",
+                             replacement = "]")) %>% 
+  mutate(fct_level = str_match(interval, pattern = "\\[.*,")) %>% 
+  mutate(fct_level = str_replace_all(fct_level, c("\\["="", ","=""))) %>% 
+  mutate(fct_level = as.numeric(fct_level)) %>%
+  mutate(label = fct_reorder(label, fct_level))
+
+avg_int_density <- intersections %>% 
+  pull(int_density) %>% 
+  mean()
+
+avg_int_density <- round(avg_int_density)
+```
+
+To get an idea of existing road infrastructure, the whole area was divided into sqkm grids and intersection density was calculated for each grid. The city has an average of **`r avg_int_density` road intersections per sqkm area**. As a Transport Planner this metric makes me happy because it tells us that the city is well connected with roads which is very important for a city like Bengaluru. The same metric also reveals another unavoidable truth: most of the city is filled with some sort of infrastructure.
+  
+The following plot shows the distribution of road intersection density for Bengaluru. Here x-axis represents the number of sqkm grids and y-axis represents the the intersection density range.
+
+```{r warning=FALSE, message=FALSE}
+intersections %>%   
+  ggplot(aes(x = int_density, y = label))+
+  geom_col(color = "black", fill ="#354259")+
+  scale_x_continuous(expand = c(0,0))+
+  labs(title = "Distribution of Road Intersection Density in Bengaluru",
+       x = NULL,
+       y = "Intersection Density per sqkm")+
+  theme_minimal()+
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    axis.text = element_text(color = "black")
+  )
+```
+
+
+<span style = 'font-size:15px'>
+*Note:* Roads data was obtained from **[Open Street Map](https://www.openstreetmap.org/#map=12/12.9895/77.6181)** and only few tags were considered while extracting the data to simplify the procedure. In reality these numbers may change.
+</span>
+
+
+## Conclusions
+- Any system that heavily depends on Human behavioral patterns tends to get more and more complicated over time. Transport System is an example of such systems. Even though these problems seem too complex to even comprehend, it has been proven that with proper planning and rigorous maintenance these challenges can be mitigated. 
+- To address the rapid growth happening across the city, it is necessary to develop a master plan for every two or four years instead of developing it for each decade.
+- Land-use policy should encourage models like 15min-City so that the necessity to use a vehicle drastically reduces.
+- Public Transport systems should be developed to an extent that encourages People to measure both Public and Private modes of transport on the same scale.
+- Dedicated lanes for [Buses](https://en.wikipedia.org/wiki/Bus_lane), if planned and maintained strategically, has been proven to be an effective solution for Traffic Congestion in cities like Brisbane.
+- Almost always a user chooses a mode based on how effective the First and Last mile coverage is in his/her area of interest. People tend to choose Private vehicles over Public Transit to avoid the unpleasant part, first and last mile, of the journey. Efforts to create an efficient Public Transport system should start by addressing this particular problem. 
+- In order to bring change in mode choice behavior at large scale, Policies should be created to incentivize those that choose Public Transport over Private vehicles.
+
+<span style = 'font-size:15px'>
+*Note:* All the data used in this post was gathered from publicly available sources. So you may find different figures if you look at a different source or if you get the data from a credible source. Even though these are not the exact figures, we can get good estimation of what's happening in terms of Traffic in Bengaluru by exploring this data.
+</span>
+
+
+
+**Data sources**  
+<div style = 'font-size:15px'>
+-  Click [here](https://github.com/ashokpamidi/) for data files and R-script used to create this document.
+-  Bengaluru wards level shapefile was obtained from [here](https://data.opencity.in/dataset/bbmp-ward-information).
+-  Vehicle Registration Data was taken from [this](https://transport.karnataka.gov.in/storage/pdf-files/annual%20report%202022-202-397.pdf) document.
+-  Population Data was extracted from [here](https://worldpopulationreview.com/world-cities/bangalore-population).
+-  Metro Ridership Data was taken from [this](https://en.wikipedia.org/wiki/Namma_Metro) Wikipedia page.
+-  Bus Ridership data was taken from [here](https://www.statista.com/statistics/1240167/india-average-daily-ridership-of-buses-in-bengaluru/#:~:text=Average%20daily%20ridership%20of%20buses%20in%20Bengaluru%2C%20India%20FY%202012%2D2021&text=In%20financial%20year%202021%2C%20less,million%20passengers%20the%20previous%20year.).
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+

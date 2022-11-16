@@ -1,0 +1,79 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Ashok P",
+    "section": "",
+    "text": "Hi there!\nMy name is Ashok and I am from India.\nI am a Transport Planner and part time Programmer."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Blog",
+    "section": "",
+    "text": "news\n\n\ncode\n\n\nanalysis\n\n\n\n\nA broder view of existing Traffic situation in Bengaluru\n\n\n\n\n\n\nNov 16, 2022\n\n\nAshok P\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html",
+    "href": "posts/traffic-in-bengaluru/index.html",
+    "title": "Traffic in Bengaluru",
+    "section": "",
+    "text": "Recent rains revealed that Bengaluru, known as IT Capital of India, is at the brink of a structural collapse due to unorganized infrastructure and inefficient drainage system. In the last decade, economic activity has skyrocketed in Bengaluru. This economic boom has attracted more and more people to move from different parts of India to this magnificent City and that means the no.of moving vehicles on its roads also has increased at an alarming rate. Studies by TomTom Index report that on average commuters in Bengaluru spend 142hrs extra time on roads because of traffic during rush hours. This post presents a few metrics which help you get a broader view of the existing Traffic situation in Bengaluru and the reasons to pay more attention to it.\nBengaluru city has 198 wards covering an area of 890.33sqkm.\n\n\n\n\n\n\n Source: Shapefile at Wards level"
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#population",
+    "href": "posts/traffic-in-bengaluru/index.html#population",
+    "title": "Traffic in Bengaluru",
+    "section": "Population",
+    "text": "Population\n\n\n\nPopulation of the City has been increasing at an average rate of 3.93% between 2011 and 2022. From 8.64MM in 2011, the population of Bengaluru increased to 13.19MM in 2022 making it the fourth most populated city in India."
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#economy",
+    "href": "posts/traffic-in-bengaluru/index.html#economy",
+    "title": "Traffic in Bengaluru",
+    "section": "Economy",
+    "text": "Economy\n\n\n\nAs the economic activity is increasing at an alarming rate the GDP of this city has sky rocketed in the past decade. As the fourth most productive city in India, in 2021 Bengaluru’s GDP reached to 16.65 trillion rupees."
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#vehicle-registration",
+    "href": "posts/traffic-in-bengaluru/index.html#vehicle-registration",
+    "title": "Traffic in Bengaluru",
+    "section": "Vehicle Registration",
+    "text": "Vehicle Registration\n\n\n\nAs the the economic activity is increasing, Vehicle registrations also increased at an alarming annual rate of 7.23% in the last decade. In 2010, a total of 4.55MM Vehicles were registered in Bengaluru and that number increased to 10.41MM in 2021. In the last decade Vehicle registrations increased by 128.79%.\n\n\n\n\n\n\n\n\nAs on 31-03-22, a total of 10.41 million vehicles are registered in Bengaluru. In this, proportion of Two wheelers is 66.59%, that of Cars is 21.11% and Buses account for only 1.14%.\n\n\n\n\n\n\n  \n    \n    \n    \n  \n  \n    \n      Total No.of Vehicles Registered in Bengaluru City as on 31-03-22\n    \n    \n  \n  \n    \n      Vehicle Category\n      No. of Registered Vehicles (1000s)\n      Percentage (%)\n    \n  \n  \n    Two Wheelers\n6,931.84\n66.59\n    Cars\n2,197.16\n21.11\n    Three Seater(A/R)\n292.13\n2.81\n    Motor Cabs\n199.15\n1.91\n    Four Wheeler\n180.31\n1.73\n    Trucks and Lorries\n178.39\n1.71\n    Buses\n118.28\n1.14\n    Others\n117.15\n1.13\n    Three Wheeler\n65.34\n0.63\n    Maxi Cabs\n55.01\n0.53\n    Tractors\n36.69\n0.35\n    Multi Axled Vehicle\n15.36\n0.15\n    Trailers\n14.30\n0.14\n    Omni Buses\n4.99\n0.05\n    Construction Moving Equipment\n2.74\n0.03\n    Private Service Vehicle\n0.45\n0.00"
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#population-vs-vehicles-registered",
+    "href": "posts/traffic-in-bengaluru/index.html#population-vs-vehicles-registered",
+    "title": "Traffic in Bengaluru",
+    "section": "Population vs Vehicles registered",
+    "text": "Population vs Vehicles registered\n\n\n\nIn 2011, the ratio of Total No.of Vehicles registered in Bengaluru to its Population is 0.58 and it increased to 0.82 by 2021. A recent report by India Today (24-10-22) indicated that this ratio has reached to 1. That means for every living person in Bengaluru there is a Vehicle. I would encourage you to take a moment to let thought sink in."
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#public-transport",
+    "href": "posts/traffic-in-bengaluru/index.html#public-transport",
+    "title": "Traffic in Bengaluru",
+    "section": "Public Transport",
+    "text": "Public Transport\n\n\n\nMetro was proposed to take off the burden from Public road Transport systems but only a slight part of that goal has been achieved until now. In 2019, on average Metro carried only 12.6% and Buses carried about 87.4% of total riders using Public Transport. Many of these trips might overlap because most people use either these two for First and Last mile journeys."
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#public-vs-private-transport",
+    "href": "posts/traffic-in-bengaluru/index.html#public-vs-private-transport",
+    "title": "Traffic in Bengaluru",
+    "section": "Public vs Private Transport",
+    "text": "Public vs Private Transport\nIt is hard to get the data about Private vehicles from publicly available sources. To understand the mode share between Public and Private transit modes, an assumption was made that on average 75% of the total population move from one point to another either by private vehicle or by using public transport service on a given day. Based on this assumption following estimations can be made about the ridership share between Public and Private transport modes in Bengaluru."
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#existing-road-infrastructure",
+    "href": "posts/traffic-in-bengaluru/index.html#existing-road-infrastructure",
+    "title": "Traffic in Bengaluru",
+    "section": "Existing Road Infrastructure",
+    "text": "Existing Road Infrastructure\nA good way to understand the land-use characteristics of a city is to look at its road infrastructure.\n\n\n\n\n\nTo get an idea of existing road infrastructure, the whole area was divided into sqkm grids and intersection density was calculated for each grid. The city has an average of 36 road intersections per sqkm area. As a Transport Planner this metric makes me happy because it tells us that the city is well connected with roads which is very important for a city like Bengaluru. The same metric also reveals another unavoidable truth: most of the city is filled with some sort of infrastructure.\nThe following plot shows the distribution of road intersection density for Bengaluru. Here x-axis represents the number of sqkm grids and y-axis represents the the intersection density range.\n\n\n\n\n\n Note: Roads data was obtained from Open Street Map and only few tags were considered while extracting the data to simplify the procedure. In reality these numbers may change."
+  },
+  {
+    "objectID": "posts/traffic-in-bengaluru/index.html#conclusions",
+    "href": "posts/traffic-in-bengaluru/index.html#conclusions",
+    "title": "Traffic in Bengaluru",
+    "section": "Conclusions",
+    "text": "Conclusions\n\nAny system that heavily depends on Human behavioral patterns tends to get more and more complicated over time. Transport System is an example of such systems. Even though these problems seem too complex to even comprehend, it has been proven that with proper planning and rigorous maintenance these challenges can be mitigated.\nTo address the rapid growth happening across the city, it is necessary to develop a master plan for every two or four years instead of developing it for each decade.\nLand-use policy should encourage models like 15min-City so that the necessity to use a vehicle drastically reduces.\nPublic Transport systems should be developed to an extent that encourages People to measure both Public and Private modes of transport on the same scale.\nDedicated lanes for Buses, if planned and maintained strategically, has been proven to be an effective solution for Traffic Congestion in cities like Brisbane.\nAlmost always a user chooses a mode based on how effective the First and Last mile coverage is in his/her area of interest. People tend to choose Private vehicles over Public Transit to avoid the unpleasant part, first and last mile, of the journey. Efforts to create an efficient Public Transport system should start by addressing this particular problem.\nIn order to bring change in mode choice behavior at large scale, Policies should be created to incentivize those that choose Public Transport over Private vehicles.\n\n Note: All the data used in this post was gathered from publicly available sources. So you may find different figures if you look at a different source or if you get the data from a credible source. Even though these are not the exact figures, we can get good estimation of what’s happening in terms of Traffic in Bengaluru by exploring this data. \nData sources\n\n\n\nClick here for data files and R-script used to create this document.\nBengaluru wards level shapefile was obtained from here.\nVehicle Registration Data was taken from this document.\nPopulation Data was extracted from here.\nMetro Ridership Data was taken from this Wikipedia page.\nBus Ridership data was taken from here."
+  }
+]
